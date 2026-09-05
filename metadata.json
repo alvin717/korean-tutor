@@ -1,0 +1,6 @@
+{
+  "name": "K-Lingo Korean Learning App & Architecture",
+  "description": "듀오링고 스타일 한국어 학습 모바일 앱 아키텍처 제안서 및 적응형 학습 인터랙티브 프로토타입",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
