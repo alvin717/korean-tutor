@@ -1,13 +1,28 @@
-import React from 'react';
-import { UserState } from '../../types';
-import { Flame, Clock, Award, BarChart3, AlertCircle, Target, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { UserState, FanfareThemeId } from '../../types';
+import { Flame, Clock, Award, BarChart3, AlertCircle, Target, TrendingUp, Music, Volume2, Sparkles, Shuffle } from 'lucide-react';
 import { BilingualText } from '../common/BilingualText';
+import { sounds, FANFARE_THEMES } from '../../utils/audio';
+import { FanfareSettingsModal } from './FanfareSettingsModal';
 
 interface ProfileTabProps {
   userState: UserState;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({ userState }) => {
+  const [isFanfareModalOpen, setIsFanfareModalOpen] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<FanfareThemeId | 'random'>(sounds.getFanfareTheme());
+  const [playingPreview, setPlayingPreview] = useState<FanfareThemeId | null>(null);
+
+  const activeThemeObj = FANFARE_THEMES.find(t => t.id === currentTheme);
+
+  const handleQuickPreview = (themeId: FanfareThemeId) => {
+    setPlayingPreview(themeId);
+    sounds.playFanfare(themeId);
+    setTimeout(() => {
+      setPlayingPreview(null);
+    }, 1100);
+  };
   // Weekly XP Mock Graph Data
   const weeklyData = [
     { day: '월', dayEn: 'Mon', xp: 45, goal: 50 },
@@ -62,7 +77,95 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ userState }) => {
         </div>
       </div>
 
-      {/* TOPIK Forecast Card */}
+      {/* Fanfare Celebration Sound Studio Card */}
+      <div className="p-5 bg-gradient-to-br from-amber-50 via-orange-50/50 to-white rounded-3xl border border-amber-200 space-y-3.5 shadow-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-800 font-bold text-xs">
+            <span className="text-base">🎉</span>
+            <BilingualText
+              ko="정답 축하 팡파레 사운드 스튜디오"
+              en="Celebration Fanfare Sound Studio"
+              koClassName="font-bold text-amber-900"
+              enClassName="text-amber-950 font-black"
+            />
+          </div>
+          <button
+            onClick={() => {
+              sounds.playTap();
+              setIsFanfareModalOpen(true);
+            }}
+            className="text-[11px] font-extrabold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-2.5 py-1 rounded-full transition-all flex items-center gap-1 active:scale-95"
+          >
+            <span>설정 & 변경</span>
+            <span>⚙️</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between bg-white/90 rounded-2xl p-3 border border-amber-200/80">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl">
+              {currentTheme === 'random' ? '🎲' : (activeThemeObj?.icon || '🎺')}
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black text-slate-800">
+                  {currentTheme === 'random' ? '무작위 랜덤 셔플 (5가지 순환)' : activeThemeObj?.nameKo}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-800 font-bold border border-amber-200">
+                  {currentTheme === 'random' ? '5가지 순환' : activeThemeObj?.tag}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {currentTheme === 'random'
+                  ? '정답을 맞힐 때마다 5가지 팡파레가 중복 없이 색다르게 울려요!'
+                  : activeThemeObj?.descKo}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Preview Chips for All 5 Themes */}
+        <div className="pt-1">
+          <div className="flex items-center justify-between text-[11px] font-bold text-slate-600 mb-2">
+            <span>5가지 팡파레 즉시 들어보기:</span>
+            <span className="text-[10px] text-amber-700 font-medium">터치 시 즉시 재생</span>
+          </div>
+          <div className="grid grid-cols-5 gap-1.5">
+            {FANFARE_THEMES.map(theme => {
+              const isPlaying = playingPreview === theme.id;
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => handleQuickPreview(theme.id)}
+                  className={`p-2 rounded-xl border flex flex-col items-center gap-1 transition-all active:scale-90 ${
+                    isPlaying
+                      ? 'bg-amber-500 text-white border-amber-600 scale-105 shadow-md shadow-amber-500/20'
+                      : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
+                  title={`${theme.nameKo} (${theme.nameEn})`}
+                >
+                  <span className="text-base">{theme.icon}</span>
+                  <span className="text-[10px] font-bold truncate max-w-full leading-tight">
+                    {theme.id === 'classic' ? '클래식' :
+                     theme.id === 'arcade' ? '8비트' :
+                     theme.id === 'champion' ? '챔피언' :
+                     theme.id === 'sparkle' ? '스파클' : '삼바'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Fanfare Settings Modal */}
+      <FanfareSettingsModal
+        isOpen={isFanfareModalOpen}
+        onClose={() => {
+          setIsFanfareModalOpen(false);
+          setCurrentTheme(sounds.getFanfareTheme());
+        }}
+      />
       <div className="p-5 bg-gradient-to-r from-blue-50 via-indigo-50/60 to-white rounded-3xl border border-blue-200/90 space-y-3 shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-blue-800 font-bold text-xs group cursor-pointer">

@@ -15,7 +15,7 @@ import {
   Compass
 } from 'lucide-react';
 import { Unit, Lesson, UserState, UnitGuidebook } from '../../types';
-import { sounds, speakKorean } from '../../utils/audio';
+import { sounds, speakKorean, speakEnglish } from '../../utils/audio';
 import { BilingualText } from '../common/BilingualText';
 import { getLessonTitleEn, getUnitTitleEn } from '../../utils/translationMap';
 
@@ -503,9 +503,20 @@ export const LearnTab: React.FC<LearnTabProps> = ({
                                   {ex.korean}
                                 </span>
                               </div>
-                              <span className="text-slate-500 text-[11px]">
-                                {ex.english}
-                              </span>
+                              <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
+                                <span>{ex.english}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    sounds.playTap();
+                                    speakEnglish(ex.english);
+                                  }}
+                                  className="p-0.5 text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                                  title="🇺🇸 영어 발음 듣기"
+                                >
+                                  <Volume2 className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -526,28 +537,45 @@ export const LearnTab: React.FC<LearnTabProps> = ({
                   {selectedGuidebook.guidebook.keyVocab.map((vocab, vIdx) => (
                     <div
                       key={vIdx}
-                      className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between"
+                      className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-1"
                     >
-                      <div>
-                        <div className="font-bold text-slate-900 text-xs">
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-slate-900 text-xs truncate">
                           {vocab.korean}
                         </div>
-                        <div className="text-[10px] text-slate-500 truncate max-w-[110px]">
+                        <div className="text-[10px] text-slate-500 truncate">
                           {vocab.english}
                         </div>
                         {vocab.pronunciation && (
-                          <div className="text-[9px] text-indigo-600 font-medium">
+                          <div className="text-[9px] text-indigo-600 font-medium truncate">
                             [{vocab.pronunciation}]
                           </div>
                         )}
                       </div>
-                      <button
-                        onClick={() => speakKorean(vocab.korean)}
-                        className="w-7 h-7 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition-colors"
-                        title="원어민 발음 재생"
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex flex-col gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sounds.playTap();
+                            speakKorean(vocab.korean);
+                          }}
+                          className="w-6 h-6 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-colors text-[10px] font-black cursor-pointer shadow-2xs"
+                          title="🇰🇷 한국어 발음 재생"
+                        >
+                          🇰🇷
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sounds.playTap();
+                            speakEnglish(vocab.english);
+                          }}
+                          className="w-6 h-6 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 flex items-center justify-center transition-colors text-[10px] font-black cursor-pointer shadow-2xs"
+                          title="🇺🇸 영어 발음 재생"
+                        >
+                          🇺🇸
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
